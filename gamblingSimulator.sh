@@ -1,70 +1,82 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 echo "Welcome to the GamblingSimulator"
 
 declare -A  amount
-declare -A  winloss
+declare -A  winLoss
 
-#veriables
-total_amount=0
-
+#variables
+totalAmount=0
+choice=1
 #Constants
-stake=100
+STAKE=100
 BET=1;
-MAX_VALUE=$(($stake+50*$stake / 100))
-MIN_VALUE=$(($stake-50*$stake/100))
+MAX_VALUE=$(($STAKE+50*$STAKE / 100))
+MIN_VALUE=$(($STAKE-50*$STAKE/100))
 
 
 function calculativeGambler() {
-	stake=100;
-	prev_stake=$stake
+	STAKE=100;
+	prev_STAKE=$STAKE
 	amount_per_day=0
-	while (( (($stake < $MAX_VALUE)) && (($stake > $MIN_VALUE)) ))
+	while (( (($STAKE < $MAX_VALUE)) && (($STAKE > $MIN_VALUE)) ))
 	do
 		if (( $((RANDOM%2))==$BET))
 		then
-			stake=$(($stake+$BET))
+			STAKE=$(($STAKE+$BET))
 		else
-			stake=$(($stake-$BET))
+			STAKE=$(($STAKE-$BET))
 		fi
 	done
-	amount_per_day=$(($stake-$prev_stake))
+	amount_per_day=$(($STAKE-$prev_STAKE))
 }
 
 function gamblerForMonth() {
-for(( i=1;i<=20;i++))
-do
-   calculativeGambler
-	amount[day$i]=$amount_per_day
-	total_amount=$(($total_amount+$amount_per_day))
-	echo "Total Amount= $total_amount"
-	winloss[day$i]=$total_amount
-done
+	for(( i=1;i<=20;i++))
+	do
+		calculativeGambler
+		amount[day$i]=$amount_per_day
+		totalAmount=$(($totalAmount+$amount_per_day))
+	#	echo "Total Amount= $totalAmount"
+		winLoss[day$i]=$totalAmount
+	done
 }
 
 function displayTotalAmount() {
-	if (($total_amount >0))
+	if (($totalAmount >0))
 	then
-		echo "After 20 days of play, total amount win  = $total_amount"
+		echo " total amount win  = $totalAmount"
 	else
-		echo "After 20 days of play, total amount loss  =$(($total_amount * -1))"
+		echo " total amount loss  =$(($totalAmount * -1))"
 	fi
 }
 
+function sortValue() {
+	for i in ${!winLoss[@]}
+	do
+		echo " $i  ${winLoss[$i]}"
+	done | sort -$1 $2 | head -1
+}
+
 #################################### Start Program##################################
-gamblerForMonth
-displayTotalAmount
-
-printf "Luciest Day : "
-for i in ${!winloss[@]}
+while (( $choice==1 ))
 do
-	echo " $i  ${winloss[$i]}"
-done | sort -k2 -rn | head -1
+	totalAmount=0
+	gamblerForMonth
+	displayTotalAmount
+	echo ${winLoss[@]}
+	echo ${!winloss[@]}
+	printf "Luciest Day : "
+	sortValue k2 -rn
 
-
-printf "Unluciest Day : "
-for i in ${!winloss[@]}
-do
-	echo  "$i ${winloss[$i]}"
-done | sort -k2 -rn | tail -1
-
+	printf "Unluciest Day : "
+	sortValue k2 -n
+	if (($totalAmount >0))
+	then
+		echo " if you want to play , press 1"
+		read choice
+	else
+		echo "Thankyou"
+		break;
+	fi
+done
