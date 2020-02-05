@@ -1,22 +1,26 @@
-#! /bin/bash 
+#!/bin/bash 
 
 echo "Welcome to the GamblingSimulator"
 
+declare -A  amount
+
 #veriables
-stake=100;
 total_amount=0
 win=0;
 loose=0;
-prev_stake=0;
+
 #Constants
+stake=100
 BET=1;
+MAX_VALUE=$(($stake+50*$stake / 100))
+MIN_VALUE=$(($stake-50*$stake/100))
+
 
 function calculativeGambler() {
-	MAX_VALUE=$(($stake+50*$stake / 100))
-	MIN_VALUE=$(($stake-50*$stake/100))
+	stake=100;
 	prev_stake=$stake
 	amount_per_day=0
-	while (( (($stake <= $MAX_VALUE)) && (($stake >= $MIN_VALUE)) ))
+	while (( (($stake < $MAX_VALUE)) && (($stake > $MIN_VALUE)) ))
 	do
 		if (( $((RANDOM%2))==$BET))
 		then
@@ -28,20 +32,32 @@ function calculativeGambler() {
 		fi
 	done
 	amount_per_day=$(($stake-$prev_stake))
-	echo $amount_per_day
+}
+
+function gamblerForMonth() {
+for(( i=1;i<20;i++))
+do
+   calculativeGambler
+	amount[day$i]=$amount_per_day
+	total_amount=$(($total_amount+$amount_per_day))
+	if (( ${amount[day$i]}>0 ))
+	then
+		echo "win of $i day = ${amount[day$i]}"
+	else
+		echo "loss of $i day = $((${amount[day$i]} ))"
+	fi
+done
 }
 
 
-for(( i=0;i<20;i++))
-do
-	calculativeGambler
-	total_amount=$(($total_amount + $amount_per_day))
 
-done
 
+#################################### Start Program##################################
+gamblerForMonth
 if (($total_amount >0))
 then
 	echo "After 20 days of play, total amount win  = $total_amount"
 else
 	echo "After 20 days of play, total amount loss  =$(($total_amount * -1))"
 fi
+#echo ${amount[@]}
