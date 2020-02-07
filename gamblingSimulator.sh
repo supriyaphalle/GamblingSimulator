@@ -9,35 +9,34 @@ declare -A  winLoss
 totalAmount=0
 choice=1
 #Constants
-STAKE=100
+INITIAL_STAKE=100
 BET=1;
-MAX_VALUE=$(($STAKE+50*$STAKE / 100))
-MIN_VALUE=$(($STAKE-50*$STAKE/100))
-
+MAX_VALUE=$(($INITIAL_STAKE+50*$INITIAL_STAKE / 100))
+MIN_VALUE=$(($INITIAL_STAKE-50*$INITIAL_STAKE/100))
+NO_OF_DAYS=20
 
 function calculativeGambler() {
-	STAKE=100;
-	prev_STAKE=$STAKE
+	stake=$INITIAL_STAKE;
+	prev_STAKE=$INITIAL_STAKE
 	amount_per_day=0
-	while (( (($STAKE < $MAX_VALUE)) && (($STAKE > $MIN_VALUE)) ))
+	while (( (($stake < $MAX_VALUE)) && (($stake > $MIN_VALUE)) ))
 	do
 		if (( $((RANDOM%2))==$BET))
 		then
-			STAKE=$(($STAKE+$BET))
+			stake=$(($stake+$BET))
 		else
-			STAKE=$(($STAKE-$BET))
+			stake=$(($stake-$BET))
 		fi
 	done
-	amount_per_day=$(($STAKE-$prev_STAKE))
+	amount_per_day=$(($stake-$prev_STAKE))
 }
 
 function gamblerForMonth() {
-	for(( i=1;i<=20;i++))
+	for ((i=1;i<=NO_OF_DAYS;i++))
 	do
 		calculativeGambler
 		amount[day$i]=$amount_per_day
 		totalAmount=$(($totalAmount+$amount_per_day))
-	#	echo "Total Amount= $totalAmount"
 		winLoss[day$i]=$totalAmount
 	done
 }
@@ -59,6 +58,7 @@ function sortValue() {
 }
 
 #################################### Start Program##################################
+
 while (( $choice==1 ))
 do
 	totalAmount=0
@@ -68,7 +68,6 @@ do
 	echo ${!winloss[@]}
 	printf "Luciest Day : "
 	sortValue k2 -rn
-
 	printf "Unluciest Day : "
 	sortValue k2 -n
 	if (($totalAmount >0))
